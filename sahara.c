@@ -199,15 +199,18 @@ int sahara_run(int fd, char *prog_mbn)
 	char buf[4096];
 	char tmp[32];
 	bool done = false;
-	int n;
+	ssize_t n;
 
 	while (!done) {
 		pfd.fd = fd;
 		pfd.events = POLLIN;
-		n = poll(&pfd, 1, -1);
+		n = poll(&pfd, 1, 10000);
 		if (n < 0) {
 			warn("failed to poll");
-			break;
+			break; //TODO what should we do here?
+		} else if (n == 0) {
+			warn("Device not available. Please check udev configuration.");
+			break; //TODO what should we do here?
 		}
 
 		n = read(fd, buf, sizeof(buf));
